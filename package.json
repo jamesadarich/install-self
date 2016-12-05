@@ -7,6 +7,9 @@
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "bin": {
+    "install-self": "cli/install-self.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jamesrichford/install-self.git"
@@ -25,6 +28,7 @@
   },
   "homepage": "https://github.com/jamesrichford/install-self#readme",
   "devDependencies": {
+    "@types/node": "0.0.2",
     "alsatian": "^1.0.0-beta.4",
     "typescript": "^2.0.10"
   }
