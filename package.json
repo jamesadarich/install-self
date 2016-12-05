@@ -1,0 +1,26 @@
+{
+  "name": "install-self",
+  "version": "1.0.0",
+  "description": "Self-reference an NPM module and get rid of relative references",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jamesrichford/install-self.git"
+  },
+  "keywords": [
+    "install",
+    "self",
+    "npm",
+    "link",
+    "reference"
+  ],
+  "author": "James Richford <=> (=)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jamesrichford/install-self/issues"
+  },
+  "homepage": "https://github.com/jamesrichford/install-self#readme"
+}
