@@ -2,7 +2,7 @@
   "name": "install-self",
   "version": "1.0.0-beta.1",
   "description": "Self-reference an NPM module and get rid of relative references",
-  "main": "index.js",
+  "main": "core/install-self.js",
   "scripts": {
     "build": "tsc",
     "prepublish": "npm run build",
