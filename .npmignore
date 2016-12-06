@@ -1,0 +1,10 @@
+# TypeScript
+*.js.map
+*.ts
+!*.d.ts
+
+# TypeScript config
+tsconfig.json
+
+# Tests
+node_modules
