@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc",
     "prepublish": "npm run build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "pretest": "npm run build && node cli/install-self.js",
+    "test": "alsatian \"**/*.spec.js\""
   },
   "bin": {
     "install-self": "cli/install-self.js"
