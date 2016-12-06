@@ -4,6 +4,8 @@ import * as FileSystem from "fs";
 
 const packageDirectory = process.cwd();
 
+console.log("package directory:", packageDirectory);
+
 // get package name
 const packageJson = require(packageDirectory + "/package.json");
 
@@ -15,11 +17,17 @@ const packageJson = require(packageDirectory + "/package.json");
 
 const packageNodeModuleDirectory = packageDirectory + "/node_modules/" + packageJson.name;
 
-if (!FileSystem.existsSync(packageNodeModuleDirectory)) {
+if (!FileSystem.existsSync(packageNodeModuleDirectory)) {   
+
+    console.log("creating directory:", packageNodeModuleDirectory);
     FileSystem.mkdirSync(packageNodeModuleDirectory);
 }
 
 packageJson.main = "../../" + packageJson.main;
+
+console.log("new main:", packageJson.main);
+
+console.log("creating new package.json in:", packageNodeModuleDirectory);
 
 FileSystem.writeFileSync(packageNodeModuleDirectory + "/package.json", JSON.stringify(packageJson, null, 4));
 
