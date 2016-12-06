@@ -5,7 +5,7 @@ import * as FileSystem from "fs";
 const packageDirectory = process.cwd();
 
 // get package name
-const packageName = require(packageDirectory + "/package.json").name;
+const packageJson = require(packageDirectory + "/package.json");
 
 // create folder with package name
 
@@ -13,11 +13,14 @@ const packageName = require(packageDirectory + "/package.json").name;
 // with the following contents
 // module.exports = require("..");
 
-const packageNodeModuleDirectory = packageDirectory + "/node_modules/" + packageName;
+const packageNodeModuleDirectory = packageDirectory + "/node_modules/" + packageJson.name;
 
 if (!FileSystem.existsSync(packageNodeModuleDirectory)) {
     FileSystem.mkdirSync(packageNodeModuleDirectory);
 }
-FileSystem.writeFileSync(packageNodeModuleDirectory + "/index.js", "module.exports = require(\"../..\");");
+
+packageJson.main = "../../" + packageJson.main;
+
+FileSystem.writeFileSync(packageNodeModuleDirectory + "/package.json", JSON.stringify(packageJson, null, 4));
 
 // log errors or log everything's A-OK
