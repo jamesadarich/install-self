@@ -21,6 +21,10 @@ if (!FileSystem.existsSync(packageNodeModuleDirectory)) {
 
 packageJson.main = "../../" + packageJson.main;
 
+if (packageJson.typings) {
+    packageJson.typings = "../../" + packageJson.typings;
+}
+
 FileSystem.writeFileSync(packageNodeModuleDirectory + "/package.json", JSON.stringify(packageJson, null, 4));
 
 // log errors or log everything's A-OK
