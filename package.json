@@ -5,7 +5,7 @@
   "main": "core/install-self.js",
   "scripts": {
     "build": "tsc",
-    "prepublish": "npm run build",
+    "prepublish": "npm run build && npm test",
     "pretest": "npm run build && node cli/install-self.js",
     "test": "alsatian \"**/*.spec.js\""
   },
