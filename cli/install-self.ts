@@ -1,30 +1,37 @@
 #!/usr/bin/env node
 
-import * as FileSystem from "fs";
+import * as FileSystem from "fs-extra";
+import * as packlist from "npm-packlist";
+import * as path from 'path'
 
-const packageDirectory = process.cwd();
+(async () => {
+  const packageDirectory = process.cwd();
 
-// get package name
-const packageJson = require(packageDirectory + "/package.json");
+  // get package name
+  const packageJson = require(path.resolve(packageDirectory, 'package.json'));
 
-// create folder with package name
+  const packageNodeModuleDirectory = path.join(packageDirectory, 'node_modules', packageJson.name);
+  const filenames = await packlist();
 
-// create index file to that folder
-// with the following contents
-// module.exports = require("..");
+  await Promise.all(
+      filenames.map(async filename => {
+          await FileSystem.ensureDir(path.join(packageNodeModuleDirectory, path.dirname(filename)));
+          await FileSystem.copyFile(filename, path.join(packageNodeModuleDirectory, filename));
+      })
+  );
 
-const packageNodeModuleDirectory = packageDirectory + "/node_modules/" + packageJson.name;
+  await Promise.all(
+      Object.keys(packageJson.bin || {})
+          .map(async name => {
+              const filename = packageJson.bin[name]
+              await FileSystem.ensureDir(path.join(packageDirectory, 'node_modules', '.bin'));
+              await FileSystem.copyFile(
+                path.join(packageNodeModuleDirectory, filename),
+                path.join(packageDirectory, 'node_modules', '.bin', name)
+              );
+              await FileSystem.chmod(path.join(packageDirectory, 'node_modules', '.bin', name), '755')
+          })
+  )
 
-if (!FileSystem.existsSync(packageNodeModuleDirectory)) {
-    FileSystem.mkdirSync(packageNodeModuleDirectory);
-}
-
-packageJson.main = "../../" + packageJson.main;
-
-if (packageJson.typings) {
-    packageJson.typings = "../../" + packageJson.typings;
-}
-
-FileSystem.writeFileSync(packageNodeModuleDirectory + "/package.json", JSON.stringify(packageJson, null, 4));
-
-// log errors or log everything's A-OK
+  // log errors or log everything's A-OK
+})()
