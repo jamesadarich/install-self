@@ -12,10 +12,15 @@ import * as path from 'path'
   const packageNodeModuleDirectory = path.join('node_modules', packageJson.name);
   const filenames = await packlist();
 
+  await FileSystem.remove(packageNodeModuleDirectory);
+
   await Promise.all(
       filenames.map(async filename => {
           await FileSystem.ensureDir(path.join(packageNodeModuleDirectory, path.dirname(filename)));
-          await FileSystem.copyFile(filename, path.join(packageNodeModuleDirectory, filename));
+          await FileSystem.symlink(
+              path.relative(path.join(packageNodeModuleDirectory, path.dirname(filename)), filename),
+              path.join(packageNodeModuleDirectory, filename)
+          );
       })
   );
 
