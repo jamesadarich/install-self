@@ -1,41 +1,75 @@
 #!/usr/bin/env node
 
-import * as FileSystem from "fs-extra";
-import * as packlist from "npm-packlist";
-import * as path from 'path'
+import * as FileSystem from "fs";
 
-(async () => {
+(async() => {
+    const packageDirectory = process.cwd();
 
-  // get package name
-  const packageJson = require(path.resolve(process.cwd(), 'package.json'));
+    // get package name
+    const packageJson = await import(packageDirectory + "/package.json");
 
-  const packageNodeModuleDirectory = path.join('node_modules', packageJson.name);
-  const filenames = await packlist();
+    // create folder with package name
 
-  await FileSystem.remove(packageNodeModuleDirectory);
+    // create index file to that folder
+    // with the following contents
+    // module.exports = require("..");
 
-  await Promise.all(
-      filenames.map(async filename => {
-          await FileSystem.ensureDir(path.join(packageNodeModuleDirectory, path.dirname(filename)));
-          await FileSystem.symlink(
-              path.relative(path.join(packageNodeModuleDirectory, path.dirname(filename)), filename),
-              path.join(packageNodeModuleDirectory, filename)
-          );
-      })
-  );
+    const nodeModulesFolder = `${packageDirectory}/node_modules`;
 
-  await Promise.all(
-      Object.keys(packageJson.bin || {})
-          .map(async name => {
-              const filename = packageJson.bin[name]
-              await FileSystem.ensureDir(path.join('node_modules', '.bin'));
-              await FileSystem.remove(path.join('node_modules', '.bin', name))
-              await FileSystem.symlink(
-                path.relative(path.join('node_modules', '.bin'), path.join(packageNodeModuleDirectory, filename)),
-                path.join('node_modules', '.bin', name)
-              );
-          })
+    const packageNodeModuleDirectory = `${nodeModulesFolder}/${packageJson.name}`;
+
+    if (!FileSystem.existsSync(packageNodeModuleDirectory)) {
+        FileSystem.mkdirSync(packageNodeModuleDirectory);
+    }
+
+    packageJson.main = updatePath(packageJson.main);
+
+    if (packageJson.typings) {
+        packageJson.typings = updatePath(packageJson.typings);
+    }
+
+    FileSystem.writeFileSync(`${packageNodeModuleDirectory}/package.json`, JSON.stringify(packageJson, null, 4));
+
+    console.log(packageJson.bin);
+
+    Object.keys(packageJson.bin || {}).map(binName => {
+        const binPath = updatePath(packageJson.bin[binName]);
+
+        FileSystem.writeFileSync(`${nodeModulesFolder}/.bin/${binName}`, buildUnixBin(binPath));
+        FileSystem.writeFileSync(`${nodeModulesFolder}/.bin/${binName}.cmd`, buildWindowsBin(binPath));
+    });
+})();
+
+function updatePath(path: string) {
+    return `../../${path}`;
+}
+
+const buildUnixBin = (path: string) => 
+`#!/bin/sh
+basedir=$(dirname "$(echo "$0" | sed -e 's,\\\\,/,g')")
+
+case \`uname\` in
+    *CYGWIN*) basedir=\`cygpath -w "$basedir"\`;;
+esac
+
+if [ -x "$basedir/node" ]; then
+  "$basedir/node"  "$basedir/${path}" "$@"
+  ret=$?
+else 
+  node  "$basedir/${path}" "$@"
+  ret=$?
+fi
+exit $ret
+`.replace(/\r\n/g, "\n");
+
+const buildWindowsBin = (path: string) => 
+`@IF EXIST "%~dp0\\node.exe" (
+    "%~dp0\\node.exe"  "%~dp0\\${path}" %*
+  ) ELSE (
+    @SETLOCAL
+    @SET PATHEXT=%PATHEXT:;.JS;=;%
+    node  "%~dp0\\${path}" %*
   )
+`.replace(/\r\n/g, "\n");
 
-  // log errors or log everything's A-OK
-})()
+// log errors or log everything's A-OK

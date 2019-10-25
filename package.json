@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jamesrichford/install-self.git"
+    "url": "git+https://github.com/jamesadarich/install-self.git"
   },
   "keywords": [
     "install",
@@ -23,12 +23,12 @@
     "link",
     "reference"
   ],
-  "author": "James Richford <=> (=)",
+  "author": "James Adarich <=> (=)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/jamesrichford/install-self/issues"
+    "url": "https://github.com/jamesadarich/install-self/issues"
   },
-  "homepage": "https://github.com/jamesrichford/install-self#readme",
+  "homepage": "https://github.com/jamesadarich/install-self#readme",
   "devDependencies": {
     "@types/fs-extra": "^8.0.0",
     "@types/node": "0.0.2",
