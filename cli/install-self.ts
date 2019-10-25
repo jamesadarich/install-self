@@ -1,30 +1,41 @@
 #!/usr/bin/env node
 
-import * as FileSystem from "fs";
+import * as FileSystem from "fs-extra";
+import * as packlist from "npm-packlist";
+import * as path from 'path'
 
-const packageDirectory = process.cwd();
+(async () => {
 
-// get package name
-const packageJson = require(packageDirectory + "/package.json");
+  // get package name
+  const packageJson = require(path.resolve(process.cwd(), 'package.json'));
 
-// create folder with package name
+  const packageNodeModuleDirectory = path.join('node_modules', packageJson.name);
+  const filenames = await packlist();
 
-// create index file to that folder
-// with the following contents
-// module.exports = require("..");
+  await FileSystem.remove(packageNodeModuleDirectory);
 
-const packageNodeModuleDirectory = packageDirectory + "/node_modules/" + packageJson.name;
+  await Promise.all(
+      filenames.map(async filename => {
+          await FileSystem.ensureDir(path.join(packageNodeModuleDirectory, path.dirname(filename)));
+          await FileSystem.symlink(
+              path.relative(path.join(packageNodeModuleDirectory, path.dirname(filename)), filename),
+              path.join(packageNodeModuleDirectory, filename)
+          );
+      })
+  );
 
-if (!FileSystem.existsSync(packageNodeModuleDirectory)) {
-    FileSystem.mkdirSync(packageNodeModuleDirectory);
-}
+  await Promise.all(
+      Object.keys(packageJson.bin || {})
+          .map(async name => {
+              const filename = packageJson.bin[name]
+              await FileSystem.ensureDir(path.join('node_modules', '.bin'));
+              await FileSystem.remove(path.join('node_modules', '.bin', name))
+              await FileSystem.symlink(
+                path.relative(path.join('node_modules', '.bin'), path.join(packageNodeModuleDirectory, filename)),
+                path.join('node_modules', '.bin', name)
+              );
+          })
+  )
 
-packageJson.main = "../../" + packageJson.main;
-
-if (packageJson.typings) {
-    packageJson.typings = "../../" + packageJson.typings;
-}
-
-FileSystem.writeFileSync(packageNodeModuleDirectory + "/package.json", JSON.stringify(packageJson, null, 4));
-
-// log errors or log everything's A-OK
+  // log errors or log everything's A-OK
+})()

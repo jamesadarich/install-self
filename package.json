@@ -30,8 +30,14 @@
   },
   "homepage": "https://github.com/jamesrichford/install-self#readme",
   "devDependencies": {
+    "@types/fs-extra": "^8.0.0",
     "@types/node": "0.0.2",
+    "@types/npm-packlist": "^1.1.1",
     "alsatian": "^1.0.0-beta.4",
     "typescript": "^2.0.10"
+  },
+  "dependencies": {
+    "fs-extra": "^8.1.0",
+    "npm-packlist": "^1.4.6"
   }
 }

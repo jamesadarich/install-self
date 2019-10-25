@@ -9,7 +9,8 @@
       "preserveConstEnums": true,
       "experimentalDecorators": true,
       "emitDecoratorMetadata": true,
-      "newLine": "LF"
+      "newLine": "LF",
+      "lib": ["es2015"]
    },
    "buildOnSave": false,
    "compileOnSave": true,
