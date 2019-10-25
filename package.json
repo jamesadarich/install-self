@@ -1,6 +1,6 @@
 {
   "name": "install-self",
-  "version": "1.0.0",
+  "version": "1.0.1-rc.0",
   "description": "Self-reference an NPM module and get rid of relative references",
   "main": "core/install-self.js",
   "scripts": {
