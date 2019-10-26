@@ -1,5 +1,7 @@
 # install-self
 
+[![Build Status](https://travis-ci.com/jamesadarich/install-self.svg?branch=master)](https://travis-ci.com/jamesadarich/install-self)
+
 reference your npm module from itself
 
 ## Usage
