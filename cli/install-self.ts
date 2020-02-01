@@ -1,6 +1,23 @@
 #!/usr/bin/env node
+import { writeFile, exists, mkdir } from "fs";
 
-import * as FileSystem from "fs";
+async function writeFileAsync(path: string, content: string) {
+    return new Promise((resolve, reject) => {
+        writeFile(path, content, err => err ? reject(err) : resolve());
+    });
+}
+
+async function existsAsync(path: string) {
+    return new Promise((resolve, reject) => {
+        exists(path, err => err ? reject(err) : resolve());
+    });
+}
+
+async function mkdirAsync(path: string) {
+    return new Promise((resolve, reject) => {
+        mkdir(path, err => err ? reject(err) : resolve());
+    });
+}
 
 (async() => {
     const packageDirectory = process.cwd();
@@ -18,8 +35,8 @@ import * as FileSystem from "fs";
 
     const packageNodeModuleDirectory = `${nodeModulesFolder}/${packageJson.name}`;
 
-    if (!FileSystem.existsSync(packageNodeModuleDirectory)) {
-        FileSystem.mkdirSync(packageNodeModuleDirectory);
+    if (!await existsAsync(packageNodeModuleDirectory)) {
+        await mkdirAsync(packageNodeModuleDirectory);
     }
 
     packageJson.main = updatePath(packageJson.main);
@@ -28,15 +45,13 @@ import * as FileSystem from "fs";
         packageJson.typings = updatePath(packageJson.typings);
     }
 
-    FileSystem.writeFileSync(`${packageNodeModuleDirectory}/package.json`, JSON.stringify(packageJson, null, 4));
+    await writeFileAsync(`${packageNodeModuleDirectory}/package.json`, JSON.stringify(packageJson, null, 4));
 
-    console.log(packageJson.bin);
-
-    Object.keys(packageJson.bin || {}).map(binName => {
+    Object.keys(packageJson.bin || {}).map(async binName => {
         const binPath = updatePath(packageJson.bin[binName]);
 
-        FileSystem.writeFileSync(`${nodeModulesFolder}/.bin/${binName}`, buildUnixBin(binPath));
-        FileSystem.writeFileSync(`${nodeModulesFolder}/.bin/${binName}.cmd`, buildWindowsBin(binPath));
+        await writeFileAsync(`${nodeModulesFolder}/.bin/${binName}`, buildUnixBin(binPath));
+        await writeFileAsync(`${nodeModulesFolder}/.bin/${binName}.cmd`, buildWindowsBin(binPath));
     });
 })();
 
